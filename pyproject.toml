@@ -1,0 +1,21 @@
+[project]
+name = "cortex"
+version = "0.1.0"
+description = "The first embedded database built natively for AI agents"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cffi>=2.0.0",
+    "mcp>=1.26.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/cortex"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+]

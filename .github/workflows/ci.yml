@@ -24,8 +24,7 @@ jobs:
         run: uv sync
 
       - name: Install MinGW
-        run: |
-          choco install mingw -y
+        run: choco install mingw -y
 
       - name: Compile libcortex.dll
         run: |
@@ -35,3 +34,20 @@ jobs:
 
       - name: Run tests
         run: uv run pytest tests/ -v
+
+      - name: Build package
+        run: uv build
+
+      - name: Upload compiled DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: libcortex-windows-x64
+          path: src/cortex/core/libcortex.dll
+          retention-days: 30
+
+      - name: Upload Python package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortexdb-package
+          path: dist/
+          retention-days: 30

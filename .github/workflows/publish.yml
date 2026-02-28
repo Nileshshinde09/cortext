@@ -33,10 +33,13 @@ jobs:
           gcc -shared -o libcortex.dll libcortex.c
           copy libcortex.dll ..\..\src\cortex\core\libcortex.dll
 
+      - name: Show pyproject.toml
+        run: type pyproject.toml
+
       - name: Build package
         run: uv build
 
-      - name: Verify build name
+      - name: Show dist contents
         run: dir dist\
 
       - name: Publish to PyPI

@@ -26,7 +26,10 @@ build-backend = "hatchling.build"
 dev-dependencies = [
 ]
 [tool.pytest.ini_options]
-testpaths = ["test"]   # or "tests" (match your folder name)
+testpaths = ["tests"]   # or "tests" (match your folder name)
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

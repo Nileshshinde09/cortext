@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\cortex.dir/objects.a
+C:\MinGW\bin\ar.exe qc CMakeFiles\cortex.dir/objects.a @CMakeFiles\cortex.dir\objects1.rsp
+C:\MinGW\bin\gcc.exe -shared -o libcortex.dll -Wl,--out-implib,liblibcortex.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -Wl,--whole-archive CMakeFiles\cortex.dir/objects.a -Wl,--no-whole-archive @CMakeFiles\cortex.dir\linkLibs.rsp

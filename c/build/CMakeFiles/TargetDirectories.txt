@@ -1,0 +1,3 @@
+E:/Projects/cortext/c/build/CMakeFiles/cortex.dir
+E:/Projects/cortext/c/build/CMakeFiles/edit_cache.dir
+E:/Projects/cortext/c/build/CMakeFiles/rebuild_cache.dir

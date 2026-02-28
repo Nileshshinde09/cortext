@@ -1,5 +1,5 @@
 [project]
-name = "cortex"
+name = "cortexdb-mcp"
 version = "0.1.0"
 description = "The first embedded database built natively for AI agents"
 readme = "README.md"

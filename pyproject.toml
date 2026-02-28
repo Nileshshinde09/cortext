@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourname/cortex"
+Homepage = "https://github.com/nileshshinde09/cortex"
 
 [build-system]
 requires = ["hatchling"]
@@ -24,6 +24,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cortex"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/cortex/**"]
 
 
 [tool.uv]

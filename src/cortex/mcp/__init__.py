@@ -12,10 +12,11 @@ def start_mcp(db, transport: str = "stdio", port: int = 5173, api_key: str = Non
 
     _print_banner(transport, port, auth)
 
+    # Detect if running under pytest
+    in_pytest = "pytest" in sys.modules
+
     if transport == "stdio":
-        # Only start stdio if being called as MCP server
-        # Not when running as a regular Python script
-        if not sys.stdin.isatty():
+        if not sys.stdin.isatty() and not in_pytest:
             start_stdio(app)
 
     elif transport == "http":
@@ -25,11 +26,10 @@ def start_mcp(db, transport: str = "stdio", port: int = 5173, api_key: str = Non
         start_websocket(app, port, auth)
 
     elif transport == "all":
-        if not sys.stdin.isatty():
+        if not sys.stdin.isatty() and not in_pytest:
             start_stdio(app)
         start_http(app, port, auth)
         start_websocket(app, port + 1, auth)
-
 
 def _print_banner(transport: str, port: int, auth: APIKeyAuth):
     print("━" * 40)

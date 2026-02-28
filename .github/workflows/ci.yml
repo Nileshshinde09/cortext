@@ -29,9 +29,9 @@ jobs:
 
       - name: Compile libcortex.dll
         run: |
-          cd c
+          cd c/src
           gcc -shared -o libcortex.dll libcortex.c
-          copy libcortex.dll ..\src\cortex\core\libcortex.dll
+          copy libcortex.dll ..\..\src\cortex\core\libcortex.dll
 
       - name: Run tests
         run: uv run pytest tests/ -v

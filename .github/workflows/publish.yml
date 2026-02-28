@@ -27,8 +27,17 @@ jobs:
         run: |
           if (Test-Path dist) { Remove-Item -Recurse -Force dist }
 
+      - name: Compile libcortex.dll
+        run: |
+          cd c/src
+          gcc -shared -o libcortex.dll libcortex.c
+          copy libcortex.dll ..\..\src\cortex\core\libcortex.dll
+
       - name: Build package
         run: uv build
+
+      - name: Verify build name
+        run: dir dist\
 
       - name: Publish to PyPI
         run: uv publish

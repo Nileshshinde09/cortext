@@ -32,6 +32,9 @@ include = ["src/cortex/**"]
 [tool.uv]
 dev-dependencies = [
 ]
+[dependency-groups]
+dev = []
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]   # or "tests" (match your folder name)
 python_files = ["test_*.py"]

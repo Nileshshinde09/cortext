@@ -1,17 +1,23 @@
 from .core.bindings import ffi, lib
+from .mcp import start_mcp
 
-# Column type constants
 CORTEX_INTEGER = 1
 CORTEX_FLOAT   = 2
 CORTEX_TEXT    = 3
 CORTEX_BLOB    = 4
 CORTEX_NULL    = 5
-
 CORTEX_ROW     = 100
 CORTEX_DONE    = 101
 
+
 class CortexConnection:
-    def __init__(self, path: str):
+    def __init__(
+        self,
+        path: str,
+        transport: str = "stdio",
+        port: int = 5173,
+        api_key: str = None
+    ):
         if not path.endswith(".ctx"):
             raise ValueError("Cortex database file must have .ctx extension")
 
@@ -22,7 +28,11 @@ class CortexConnection:
             raise ConnectionError(f"Failed to open database: {path}")
 
         self._conn = self._db[0]
-        print(f"Cortex connected to {path}")
+
+        print(f"\nCortex connected to {path}")
+
+        # Auto start MCP server
+        start_mcp(self, transport=transport, port=port, api_key=api_key)
 
     def execute(self, sql: str):
         errmsg = ffi.new("char **")
@@ -40,7 +50,6 @@ class CortexConnection:
         return rc
 
     def fetch(self, sql: str):
-        # Prepare statement
         stmt_ptr = ffi.new("cortex_stmt **")
         rc = lib.cortex_prepare_v2(
             self._conn,
@@ -55,13 +64,11 @@ class CortexConnection:
         stmt = stmt_ptr[0]
         col_count = lib.cortex_column_count(stmt)
 
-        # Get column names
         columns = []
         for i in range(col_count):
             name = ffi.string(lib.cortex_column_name(stmt, i)).decode()
             columns.append(name)
 
-        # Fetch rows
         rows = []
         while True:
             rc = lib.cortex_step(stmt)
@@ -102,9 +109,12 @@ class CortexConnection:
             lib.cortex_close(self._conn)
             self._conn = None
             print("Cortex connection closed")
+        import time
+        time.sleep(0.1)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+

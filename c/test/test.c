@@ -1,4 +1,4 @@
-#include "libcortex.h"
+#include "./lib/libcortex.h"
 #include <stdio.h>
 
 int main() {

@@ -8,6 +8,7 @@ dependencies = [
     "cffi>=2.0.0",
     "fastapi>=0.133.0",
     "mcp>=1.26.0",
+    "pytest==9.0.2",
 ]
 
 [project.urls]
@@ -20,3 +21,8 @@ build-backend = "hatchling.build"
 [tool.uv]
 dev-dependencies = [
 ]
+[tool.pytest.ini_options]
+testpaths = ["test"]   # or "tests" (match your folder name)
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"

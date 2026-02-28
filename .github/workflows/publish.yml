@@ -23,6 +23,10 @@ jobs:
           gcc -shared -o libcortex.dll libcortex.c
           copy libcortex.dll ..\..\src\cortex\core\libcortex.dll
 
+      - name: Clean dist
+        run: |
+          if (Test-Path dist) { Remove-Item -Recurse -Force dist }
+
       - name: Build package
         run: uv build
 

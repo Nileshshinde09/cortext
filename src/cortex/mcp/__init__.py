@@ -3,6 +3,7 @@ from .transport.stdio import start_stdio
 from .transport.http import start_http
 from .transport.websocket import start_websocket
 from .auth.apikey import APIKeyAuth
+import sys
 
 
 def start_mcp(db, transport: str = "stdio", port: int = 5173, api_key: str = None):
@@ -12,7 +13,10 @@ def start_mcp(db, transport: str = "stdio", port: int = 5173, api_key: str = Non
     _print_banner(transport, port, auth)
 
     if transport == "stdio":
-        start_stdio(app)
+        # Only start stdio if being called as MCP server
+        # Not when running as a regular Python script
+        if not sys.stdin.isatty():
+            start_stdio(app)
 
     elif transport == "http":
         start_http(app, port, auth)
@@ -21,7 +25,8 @@ def start_mcp(db, transport: str = "stdio", port: int = 5173, api_key: str = Non
         start_websocket(app, port, auth)
 
     elif transport == "all":
-        start_stdio(app)
+        if not sys.stdin.isatty():
+            start_stdio(app)
         start_http(app, port, auth)
         start_websocket(app, port + 1, auth)
 

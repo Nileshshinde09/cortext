@@ -2,6 +2,7 @@ import threading
 from .core.bindings import ffi, lib
 from .mcp import start_mcp
 
+
 CORTEX_INTEGER = 1
 CORTEX_FLOAT   = 2
 CORTEX_TEXT    = 3
@@ -17,7 +18,7 @@ class CortexConnection:
             path: str,
             transport: str = "stdio",
             port: int = 5173,
-            api_key: str = None
+            api_key: str| None = None
     ):
         if not path.endswith(".ctx"):
             raise ValueError("Cortex database file must have .ctx extension")

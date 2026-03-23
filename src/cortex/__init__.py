@@ -1,6 +1,5 @@
 from .connection import CortexConnection
 
-
 def connect(
     path: str,
     transport: str = "stdio",

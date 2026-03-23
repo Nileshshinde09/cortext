@@ -1,14 +1,13 @@
 import asyncio
 import threading
-import json
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route, Mount
-from starlette.middleware.base import BaseHTTPMiddleware
-from sse_starlette.sse import EventSourceResponse
 import uvicorn
 from mcp.server import Server
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
+from starlette.routing import Route
+from starlette.middleware.base import BaseHTTPMiddleware
 from ..auth.apikey import APIKeyAuth
 
 
@@ -18,6 +17,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.auth = auth
 
     async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/health":
+            return await call_next(request)
         if not self.auth.authenticate(dict(request.headers)):
             return JSONResponse(
                 {"error": "Unauthorized - Invalid or missing API key"},
@@ -27,29 +28,28 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
 
 def create_http_app(mcp_server: Server, auth: APIKeyAuth):
-    async def mcp_endpoint(request: Request):
-        try:
-            body = await request.json()
-            response = await mcp_server.handle_request(body)
-            return JSONResponse(response)
-        except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=500)
+    sse_transport = SseServerTransport("/messages/")
 
-    async def sse_endpoint(request: Request):
-        async def event_generator():
-            yield {
-                "event": "connected",
-                "data": json.dumps({"status": "Cortex MCP Server connected"})
-            }
-            # Keep connection alive
-            while True:
-                await asyncio.sleep(30)
-                yield {
-                    "event": "ping",
-                    "data": json.dumps({"status": "alive"})
-                }
+    async def handle_sse(request: Request):
+        async with sse_transport.connect_sse(
+            request.scope,
+            request.receive,
+            request._send,
+        ) as (read_stream, write_stream):
+            await mcp_server.run(
+                read_stream,
+                write_stream,
+                mcp_server.create_initialization_options(),
+            )
+        return Response()
 
-        return EventSourceResponse(event_generator())
+    async def handle_messages(request: Request):
+        await sse_transport.handle_post_message(
+            request.scope,
+            request.receive,
+            request._send,
+        )
+        return Response(status_code=202)
 
     async def health(request: Request):
         return JSONResponse({"status": "ok", "server": "cortex"})
@@ -60,16 +60,16 @@ def create_http_app(mcp_server: Server, auth: APIKeyAuth):
             "version": "0.1.0",
             "endpoints": {
                 "health": "/health",
-                "mcp": "/mcp",
-                "sse": "/sse"
+                "sse": "/sse",
+                "messages": "/messages/"
             }
         })
 
     routes = [
         Route("/", root, methods=["GET"]),
         Route("/health", health, methods=["GET"]),
-        Route("/mcp", mcp_endpoint, methods=["POST"]),
-        Route("/sse", sse_endpoint, methods=["GET"]),
+        Route("/sse", handle_sse, methods=["GET"]),
+        Route("/messages/", handle_messages, methods=["POST"]),
     ]
 
     app = Starlette(routes=routes)

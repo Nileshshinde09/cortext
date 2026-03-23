@@ -68,8 +68,12 @@ async def list_tools() -> list[Tool]:
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     global _db
+    print(f"[DEBUG] Tool called: {name}")
+    print(f"[DEBUG] Arguments: {arguments}")
+    print(f"[DEBUG] DB is None: {_db is None}")
 
     if _db is None:
+        print("[DEBUG] ERROR: No database connected")
         return [TextContent(type="text", text="Error: No database connected")]
 
     try:
@@ -81,7 +85,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             return [TextContent(type="text", text=result)]
 
         elif name == "cortex_execute":
-            _db.execute(arguments.get("sql", ""))
+            sql = arguments.get("sql", "")
+            print(f"[DEBUG] Executing SQL: {sql}")
+            _db.execute(sql)
+            print(f"[DEBUG] SQL executed successfully")
             return [TextContent(type="text", text="Executed successfully")]
 
         elif name == "cortex_tables":
@@ -110,4 +117,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
     except Exception as e:
+        print(f"[DEBUG] Exception: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return [TextContent(type="text", text=f"Error: {str(e)}")]

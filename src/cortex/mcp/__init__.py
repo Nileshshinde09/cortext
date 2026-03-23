@@ -37,8 +37,8 @@ def _print_banner(transport: str, port: int, auth: APIKeyAuth):
     print("━" * 40)
 
     if transport in ("http", "all"):
-        print(f"  HTTP+SSE  : http://localhost:{port}/mcp")
         print(f"  SSE       : http://localhost:{port}/sse")
+        print(f"  Messages  : http://localhost:{port}/messages/")
 
     if transport in ("websocket", "all"):
         ws_port = port + 1 if transport == "all" else port

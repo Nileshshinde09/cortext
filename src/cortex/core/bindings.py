@@ -9,6 +9,12 @@ ffi.cdef("""
     typedef struct cortex_stmt cortex_stmt;
 
     int cortex_open(const char *path, cortex **db);
+    int cortex_open_v2(
+        const char *filename,
+        cortex **ppDb,
+        int flags,
+        const char *zVfs
+    );
     int cortex_close(cortex *db);
     int cortex_exec(
         cortex *db,

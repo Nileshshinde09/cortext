@@ -1,5 +1,14 @@
+"""
+Cortex MCP server — transport and tool registration only.
+
+Tool logic lives in tools.py. This file is a pure dispatcher:
+register tools → receive call → delegate → return TextContent.
+"""
+
 from mcp.server import Server
 from mcp.types import Tool, TextContent
+
+from .tools import cortex_query, cortex_execute, cortex_tables, cortex_schema
 
 app = Server("cortex")
 _db = None
@@ -67,57 +76,26 @@ async def list_tools() -> list[Tool]:
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
-    global _db
-    print(f"[DEBUG] Tool called: {name}")
-    print(f"[DEBUG] Arguments: {arguments}")
-    print(f"[DEBUG] DB is None: {_db is None}")
-
     if _db is None:
-        print("[DEBUG] ERROR: No database connected")
         return [TextContent(type="text", text="Error: No database connected")]
 
     try:
         if name == "cortex_query":
-            rows = _db.fetch(arguments.get("sql", ""))
-            if not rows:
-                return [TextContent(type="text", text="No results found")]
-            result = "\n".join(str(row) for row in rows)
-            return [TextContent(type="text", text=result)]
+            result = cortex_query(_db, arguments.get("sql", ""))
 
         elif name == "cortex_execute":
-            sql = arguments.get("sql", "")
-            print(f"[DEBUG] Executing SQL: {sql}")
-            _db.execute(sql)
-            print(f"[DEBUG] SQL executed successfully")
-            return [TextContent(type="text", text="Executed successfully")]
+            result = cortex_execute(_db, arguments.get("sql", ""))
 
         elif name == "cortex_tables":
-            rows = _db.fetch(
-                "SELECT name FROM cortex_master WHERE type='table'"
-            )
-            if not rows:
-                return [TextContent(type="text", text="No tables found")]
-            tables = [row["name"] for row in rows]
-            return [TextContent(type="text", text="\n".join(tables))]
+            result = cortex_tables(_db)
 
         elif name == "cortex_schema":
-            table = arguments.get("table", None)
-            if table:
-                rows = _db.fetch(f"PRAGMA table_info({table})")
-            else:
-                rows = _db.fetch(
-                    "SELECT sql FROM cortex_master WHERE type='table'"
-                )
-            if not rows:
-                return [TextContent(type="text", text="No schema found")]
-            result = "\n".join(str(row) for row in rows)
-            return [TextContent(type="text", text=result)]
+            result = cortex_schema(_db, arguments.get("table"))
 
         else:
-            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+            result = f"Unknown tool: {name}"
+
+        return [TextContent(type="text", text=result)]
 
     except Exception as e:
-        print(f"[DEBUG] Exception: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return [TextContent(type="text", text=f"Error: {str(e)}")]

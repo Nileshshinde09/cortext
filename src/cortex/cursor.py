@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from .exception import (
+from .exceptions import (
     CortexInterfaceError,
     CortexDatabaseError,
     CortexProgrammingError,
@@ -305,7 +305,9 @@ class CortexCursor:
     def __enter__(self) -> "CortexCursor":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    # __exit__ receives exc info but we ignore it — close() must run regardless of success or failure.
+    # Returning None (falsy) lets any exception propagate naturally; return True would suppress it.
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
     def __repr__(self) -> str:

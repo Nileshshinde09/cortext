@@ -127,7 +127,9 @@ class CortexConnection:
 
     def __enter__(self):
         return self
-
+    
+    # __exit__ receives exc info but we ignore it — close() must run regardless of success or failure.
+    # Returning None (falsy) lets any exception propagate naturally; return True would suppress it.
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 

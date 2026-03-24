@@ -49,4 +49,5 @@ def start_websocket(mcp_server: Server, port: int, auth: APIKeyAuth):
 
     thread = threading.Thread(target=run_in_thread, daemon=True)
     thread.start()
+    thread.name="cortex-websocket"
     return thread
